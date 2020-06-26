@@ -523,5 +523,7 @@
   "ASSERTION_FINISH_STAGE": "${brick_finish_stage}",
   "ASSERTION_WAIT_TILL_IDLE": "${brick_wait_till_idle}",
   "ASSERTION_ASSERT_EQUALS": "${brick_assert_that} %1 ${brick_is_equal_to} %2",
-  "CAST_WHEN_GAMEPAD_BUTTON": "${brick_when_gamepad_button} %1 ${brick_when_gamepad_button_tapped}"
+  "CAST_WHEN_GAMEPAD_BUTTON": "${brick_when_gamepad_button} %1 ${brick_when_gamepad_button_tapped}",
+  "CLOSE": "${close}",
+  "SHOW_VARIABLE": "${brick_show_variable}"
 }

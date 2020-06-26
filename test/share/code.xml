@@ -58,7 +58,7 @@
                       <rightChild>
                         <rightChild>
                           <type>NUMBER</type>
-                          <value>10</value>
+                          <value>12345678901234567890123456789012345678901234567890</value>
                         </rightChild>
                         <type>OPERATOR</type>
                         <value>MINUS</value>

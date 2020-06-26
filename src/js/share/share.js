@@ -15,6 +15,8 @@ import {
   jsonDomToWorkspace
 } from './utils';
 
+const all_blocks = new Map();
+
 export class Share {
   constructor() {
     this.blockly = Blockly;
@@ -23,6 +25,7 @@ export class Share {
     this.workspaceDom = undefined;
     this.workspace = undefined;
     this.cssNode = undefined;
+    all_blocks.clear();
   }
 
   /**
@@ -37,6 +40,17 @@ export class Share {
     if (window.CatBlocks) {
       this.insertRightMediaURI();
     }
+
+    $('body').on('click', '.blocklyNonEditableText', function () {
+      const block = all_blocks[$(this).parent().attr('data-id')];
+      const element_idx = $(this).parent().children('g').index($(this));
+      const full_formula = block[element_idx];
+      // const displayed_formula = $(this).children('text').text();
+      $('#formulaPopupHeader').text(Blockly.CatblocksMsgs.getCurrentLocaleValues()['SHOW_VARIABLE']);
+      $('#formulaPopupClose').text(Blockly.CatblocksMsgs.getCurrentLocaleValues()['CLOSE']);
+      $('#formulaPopupContent').text(full_formula);
+      $('#formulaPopup').modal('show');
+    });
 
     Blockly.CatblocksMsgs.setLocale(this.config.language, this.config.i18n);
   }
@@ -109,6 +123,27 @@ export class Share {
       zebraChangeColor(this.workspace.topBlocks_);
       const oriSvg = this.workspace.getParentSvg();
       const oriBox = oriSvg.lastElementChild.getBBox();
+
+      this.workspace.getAllBlocks().forEach(block => {
+        if (!(block.id in all_blocks)) {
+          const input_list = [];
+          block.inputList[0].fieldRow.forEach(input => {
+            input_list.push(input.value_);
+          });
+          all_blocks[block.id] = input_list;
+        }
+      });
+
+      // this.workspace.getAllBlocks().forEach(block => {
+      //   block.inputList[0].fieldRow.forEach(input => {
+      //     if (input.value_.endsWith(')')) {
+      //       block.appendDummyInput().appendField(
+      //         // new Blockly.FieldImage('https://jira.catrob.at/images/icons/emoticons/information.png', 15, 15, '+')
+      //         new Blockly.FieldLabel('+')
+      //       );
+      //     }
+      //   });
+      // });
 
       // remove rect around it
       svg = oriSvg.cloneNode(true);

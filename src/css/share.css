@@ -116,3 +116,7 @@ img {
 .catblocks-object-sound-item {
   width: 100%;
 }
+
+#formulaPopupContent {
+  word-wrap: break-word;
+}

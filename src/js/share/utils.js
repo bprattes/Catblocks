@@ -249,10 +249,10 @@ export const escapeURI = string => {
  * @param {object} jsonObject current scriptList as object
  * @param {object} workspace where blocks are rendered
  */
-export const jsonDomToWorkspace = (jsonObject, workspace) => {
+export const jsonDomToWorkspace = (jsonObject, workspace, input_field_limit) => {
   const blockList = [];
   blockList.push(jsonObject);
-  renderAndConnectBlocksInList(null, blockList, brickListTypes.noBrickList, workspace);
+  renderAndConnectBlocksInList(null, blockList, brickListTypes.noBrickList, workspace, input_field_limit);
 };
 
 /**
@@ -263,7 +263,7 @@ export const jsonDomToWorkspace = (jsonObject, workspace) => {
  * @param {object} brickListType of list
  * @param {object} workspace where blocks are rendered
  */
-export const renderAndConnectBlocksInList = (parentBlock, brickList, brickListType, workspace) => {
+export const renderAndConnectBlocksInList = (parentBlock, brickList, brickListType, workspace, input_field_limit) => {
   for (let i = 0; i < brickList.length; i++) {
     const childBlock = workspace.newBlock(brickList[i].name);
     if (
@@ -275,10 +275,29 @@ export const renderAndConnectBlocksInList = (parentBlock, brickList, brickListTy
         for (let j = 0; j < childBlock.inputList[0].fieldRow.length; j++) {
           if (childBlock.inputList[0].fieldRow[j].name === key) {
             childBlock.inputList[0].fieldRow[j].setValue(value);
+
+            if (value.length < childBlock.inputList[0].fieldRow[j].maxDisplayLength) {
+              childBlock.inputList[0].fieldRow[j + 1].visible_ = false;
+            }
           }
+
+          // for (let i = 0; i < childBlock.inputList[0].fieldRow.length; ++i) {
+          //   if (entry.name + '_CATBLOCKS_INFO' == childBlock.inputList[0].fieldRow[i].name) {
+          //     childBlock.inputList[0].fieldRow[i].value_ = '';
+          //     childBlock.inputList[0].fieldRow[i].size_.height = 0;
+          //     childBlock.inputList[0].fieldRow[i].size_.width = 0;
+          //   }
+          // }
         }
       });
     }
+
+    // if (childBlock.inputList && childBlock.inputList.length > 0) {
+    //   childBlock.inputList[0].fieldRow.forEach(entry => {
+    //
+    //   });
+    // }
+
     childBlock.initSvg();
     childBlock.render(false);
     if (brickListType === brickListTypes.brickList) {
@@ -289,14 +308,21 @@ export const renderAndConnectBlocksInList = (parentBlock, brickList, brickListTy
       parentBlock.inputList[1].connection.connect(childBlock.previousConnection);
     }
     if (brickList[i].brickList !== undefined && brickList[i].brickList.length > 0) {
-      renderAndConnectBlocksInList(childBlock, brickList[i].brickList.reverse(), brickListTypes.brickList, workspace);
+      renderAndConnectBlocksInList(
+        childBlock,
+        brickList[i].brickList.reverse(),
+        brickListTypes.brickList,
+        workspace,
+        input_field_limit
+      );
     }
     if (brickList[i].elseBrickList !== undefined && brickList[i].elseBrickList.length > 0) {
       renderAndConnectBlocksInList(
         childBlock,
         brickList[i].elseBrickList.reverse(),
         brickListTypes.elseBrickList,
-        workspace
+        workspace,
+        input_field_limit
       );
     }
     if (brickList[i].loopOrIfBrickList !== undefined && brickList[i].loopOrIfBrickList.length > 0) {
@@ -304,7 +330,8 @@ export const renderAndConnectBlocksInList = (parentBlock, brickList, brickListTy
         childBlock,
         brickList[i].loopOrIfBrickList.reverse(),
         brickListTypes.loopOrIfBrickList,
-        workspace
+        workspace,
+        input_field_limit
       );
     }
   }

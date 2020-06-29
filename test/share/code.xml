@@ -396,7 +396,7 @@
                     <formula category="TIME_TO_WAIT_IN_SECONDS">
                       <leftChild>
                         <type>STRING</type>
-                        <value>hello</value>
+                        <value>hellohellohellohellohellohellohellohellohellohellohellohello</value>
                       </leftChild>
                       <rightChild>
                         <type>STRING</type>

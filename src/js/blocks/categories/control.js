@@ -34,6 +34,15 @@ export default {
         type: 'field_input',
         name: 'TIME_TO_WAIT_IN_SECONDS',
         text: 'unset'
+      },
+      {
+        type: 'field_image',
+        src: `https://jira.catrob.at/images/icons/emoticons/information.png`,
+        height: 15,
+        width: 15,
+        alt: '*',
+        flip_rtl: true,
+        name: 'TIME_TO_WAIT_IN_SECONDS_CATBLOCKS_INFO'
       }
     ]
   },

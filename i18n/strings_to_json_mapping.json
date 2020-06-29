@@ -114,7 +114,7 @@
   "EVENT_WHENNFC": "${brick_when_nfc} %1",
   "@control": "control blocks",
   "CONTROL_FOREVER": "${brick_forever}",
-  "CONTROL_WAIT": "${brick_wait} %1 ${formula_editor_sensor_time_second}",
+  "CONTROL_WAIT": "${brick_wait} %1%2 ${formula_editor_sensor_time_second}",
   "CONTROL_NOTE": "${brick_note} %1",
   "CONTROL_IFISTRUE": "${brick_if_begin} %1 ${brick_if_begin_second_part} ...",
   "CONTROL_IFISTRUEELSEIF": "${brick_if_begin} %1 ${brick_if_begin_second_part}",

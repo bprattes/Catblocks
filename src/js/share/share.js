@@ -45,11 +45,13 @@ export class Share {
       const block = all_blocks[$(this).parent().attr('data-id')];
       const element_idx = $(this).parent().children('g').index($(this));
       const full_formula = block[element_idx];
-      // const displayed_formula = $(this).children('text').text();
-      $('#formulaPopupHeader').text(Blockly.CatblocksMsgs.getCurrentLocaleValues()['SHOW_VARIABLE']);
-      $('#formulaPopupClose').text(Blockly.CatblocksMsgs.getCurrentLocaleValues()['CLOSE']);
-      $('#formulaPopupContent').text(full_formula);
-      $('#formulaPopup').modal('show');
+
+      if (full_formula.length >= Blockly.Tooltip.LIMIT) {
+        $('#formulaPopupHeader').text(Blockly.CatblocksMsgs.getCurrentLocaleValues()['SHOW_VARIABLE']);
+        $('#formulaPopupClose').text(Blockly.CatblocksMsgs.getCurrentLocaleValues()['CLOSE']);
+        $('#formulaPopupContent').text(full_formula);
+        $('#formulaPopup').modal('show');
+      }
     });
 
     Blockly.CatblocksMsgs.setLocale(this.config.language, this.config.i18n);
@@ -119,7 +121,7 @@ export class Share {
     this.workspace.clear();
     let svg = undefined;
     try {
-      jsonDomToWorkspace(blockJSON, this.workspace);
+      jsonDomToWorkspace(blockJSON, this.workspace, Blockly.Tooltip.LIMIT);
       zebraChangeColor(this.workspace.topBlocks_);
       const oriSvg = this.workspace.getParentSvg();
       const oriBox = oriSvg.lastElementChild.getBBox();
@@ -135,14 +137,13 @@ export class Share {
       });
 
       // this.workspace.getAllBlocks().forEach(block => {
-      //   block.inputList[0].fieldRow.forEach(input => {
-      //     if (input.value_.endsWith(')')) {
-      //       block.appendDummyInput().appendField(
-      //         // new Blockly.FieldImage('https://jira.catrob.at/images/icons/emoticons/information.png', 15, 15, '+')
-      //         new Blockly.FieldLabel('+')
-      //       );
+      //   const inserted = 0;
+      //   const block_inputs = all_blocks[block.id];
+      //   for (let i = 0; i < block_inputs.length; ++i) {
+      //     if (block_inputs[i].length > Blockly.Tooltip.LIMIT) {
+      //       block.appendDummyInput().insertFieldAt(0, '+');
       //     }
-      //   });
+      //   }
       // });
 
       // remove rect around it

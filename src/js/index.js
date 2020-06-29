@@ -10,7 +10,7 @@ import { renderAllPrograms } from './render/render';
     window.Blockly = Blockly;
   }
 
-  let language = 'de';
+  let language = 'en';
   if (process.env.DISPLAY_LANGUAGE !== undefined && process.env.DISPLAY_LANGUAGE.length > 0) {
     language = process.env.DISPLAY_LANGUAGE;
   }

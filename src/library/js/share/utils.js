@@ -76,6 +76,15 @@ export const injectNewDom = (container, tagName, attributes, textContent) => {
   return subContainer;
 };
 
+export const generateNewDom = ($container, tagName, attributes, textContent) => {
+  const $element = $(`<${tagName}>`, attributes);
+  $element.text(textContent);
+  if ($container !== undefined) {
+    $container.append($element);
+  }
+  return $element;
+};
+
 /**
  * Wrap element into new element, type defined via wrapTag
  * Map all attributes to wrap element

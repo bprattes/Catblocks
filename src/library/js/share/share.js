@@ -11,7 +11,8 @@ import {
   injectNewDom,
   trimString,
   zebraChangeColor,
-  jsonDomToWorkspace
+  jsonDomToWorkspace,
+  generateNewDom
 } from './utils';
 
 export class Share {
@@ -129,13 +130,13 @@ export class Share {
    * @param {string} sceneName mapped to id from the new dom
    * @returns {Element} new created scene objects container
    */
-  addSceneContainer(accordionID, sceneID, container, sceneName) {
-    const sceneContainer = injectNewDom(container, 'div', {
+  addSceneContainer(accordionID, sceneID, $container, sceneName) {
+    const $sceneContainer = generateNewDom($container, 'div', {
       class: 'catblocks-scene card',
       id: sceneID
     });
 
-    const sceneHeader = injectNewDom(sceneContainer, 'div', {
+    const $sceneHeader = generateNewDom($sceneContainer, 'div', {
       class: 'catblocks-scene-header card-header d-flex justify-content-between expansion-header',
       id: `${sceneID}-header`,
       'data-toggle': 'collapse',
@@ -145,28 +146,30 @@ export class Share {
     });
 
     if (sceneName) {
-      sceneHeader.innerHTML = `<div class="header-title">${sceneName}</div><i id="code-view-toggler" class="material-icons rotate-left">chevron_left</i>`;
+      $sceneHeader.html(
+        `<div class="header-title">${sceneName}</div><i id="code-view-toggler" class="material-icons rotate-left">chevron_left</i>`
+      );
     } else {
-      sceneHeader.innerHTML = `<i id="code-view-toggler" class="material-icons rotate-left">chevron_left</i>`;
+      $sceneHeader.html(`<i id="code-view-toggler" class="material-icons rotate-left">chevron_left</i>`);
     }
 
-    const sceneObjectContainer = injectNewDom(sceneContainer, 'div', {
+    const $sceneObjectContainer = generateNewDom($sceneContainer, 'div', {
       class: 'catblocks-object-container collapse',
       id: `${sceneID}-collapseOne`,
       'aria-labelledby': `${sceneID}-header`,
       'data-parent': `#${accordionID}`
     });
 
-    const cardBody = injectNewDom(sceneObjectContainer, 'div', {
+    const $cardBody = generateNewDom($sceneObjectContainer, 'div', {
       class: 'card-body'
     });
 
-    const accordionObjects = injectNewDom(cardBody, 'div', {
+    const $accordionObjects = generateNewDom($cardBody, 'div', {
       class: 'accordion',
       id: `${sceneID}-accordionObjects`
     });
 
-    return accordionObjects;
+    return $accordionObjects;
   }
 
   /**
@@ -179,19 +182,19 @@ export class Share {
   renderProgramJSON(programID, container, programJSON, options = {}) {
     options = parseOptions(options, defaultOptions);
     // create row and col
-    const programContainer = this.createProgramContainer(generateID(programID), container);
+    const $programContainer = this.createProgramContainer(generateID(programID), undefined);
     const scenesContainerID = `${generateID(programID)}-accordionScenes`;
-    const scenesContainer = injectNewDom(programContainer, 'div', {
+    const $scenesContainer = generateNewDom($programContainer, 'div', {
       class: 'catblocks-scene-container accordion',
       id: scenesContainerID
     });
 
     if (programJSON == null || programJSON.scenes == null || programJSON.scenes.length === 0) {
-      const errorContainer = injectNewDom(scenesContainer, 'div', {
+      const $errorContainer = generateNewDom($scenesContainer, 'div', {
         class: 'catblocks-scene card'
       });
-      injectNewDom(
-        errorContainer,
+      generateNewDom(
+        $errorContainer,
         'div',
         {
           class: 'card-header d-flex justify-content-between'
@@ -204,19 +207,19 @@ export class Share {
     for (let i = 0; i < programJSON.scenes.length; i++) {
       const scene = programJSON.scenes[i];
       const sceneID = generateID(`${programID}-${scene.name}`);
-      const sceneObjectContainer = this.addSceneContainer(
+      const $sceneObjectContainer = this.addSceneContainer(
         scenesContainerID,
         sceneID,
-        scenesContainer,
+        $scenesContainer,
         trimString(scene.name)
       );
 
       if (scene.objectList == null || scene.objectList.length === 0) {
-        const errorContainer = injectNewDom(sceneObjectContainer, 'div', {
+        const $errorContainer = generateNewDom($sceneObjectContainer, 'div', {
           class: 'catblocks-object card'
         });
-        injectNewDom(
-          errorContainer,
+        generateNewDom(
+          $errorContainer,
           'div',
           {
             class: 'card-header d-flex justify-content-between'
@@ -234,12 +237,14 @@ export class Share {
         this.renderObjectJSON(
           objectID,
           `${sceneID}-accordionObjects`,
-          sceneObjectContainer,
+          $sceneObjectContainer,
           object,
           parseOptions(options.object, parseOptions(options.object, defaultOptions.object))
         );
       }
     }
+
+    $(container).append($programContainer);
   }
 
   /**
@@ -250,15 +255,15 @@ export class Share {
    * @param {Object} object JSON of the program
    * @param {Object} [options=defaultOptions.object]
    */
-  renderObjectJSON(objectID, accordionID, sceneObjectContainer, object, options = defaultOptions.object) {
-    const objectCard = injectNewDom(sceneObjectContainer, 'div', {
+  renderObjectJSON(objectID, accordionID, $sceneObjectContainer, object, options = defaultOptions.object) {
+    const $objectCard = generateNewDom($sceneObjectContainer, 'div', {
       class: 'catblocks-object card',
       id: objectID
     });
 
     const objHeadingID = `${objectID}-header`;
     const objCollapseOneSceneID = `${objectID}-collapseOneScene`;
-    const cardHeader = injectNewDom(objectCard, 'div', {
+    const $cardHeader = generateNewDom($objectCard, 'div', {
       class: 'card-header d-flex justify-content-between expansion-header',
       id: objHeadingID,
       'data-toggle': 'collapse',
@@ -268,31 +273,35 @@ export class Share {
     });
 
     if (this.config.rtl) {
-      cardHeader.style.paddingLeft = '1.5em';
-      cardHeader.style.paddingRight = '3.5em';
+      // cardHeader.style.paddingLeft = '1.5em';
+      // cardHeader.style.paddingRight = '3.5em';
+      $cardHeader.css('padding-left', '1.5em');
+      $cardHeader.css('padding-right', '1.5em');
     }
 
     if (object && object.name) {
-      cardHeader.innerHTML = `<div class="header-title">${object.name}</div><i id="code-view-toggler" class="material-icons rotate-left">chevron_left</i>`;
+      $cardHeader.html(
+        `<div class="header-title">${object.name}</div><i id="code-view-toggler" class="material-icons rotate-left">chevron_left</i>`
+      );
     } else {
-      cardHeader.innerHTML = `<i id="code-view-toggler" class="material-icons rotate-left">chevron_left</i>`;
+      $cardHeader.html(`<i id="code-view-toggler" class="material-icons rotate-left">chevron_left</i>`);
     }
 
-    const objectContentContainer = injectNewDom(objectCard, 'div', {
+    const $objectContentContainer = generateNewDom($objectCard, 'div', {
       class: 'collapse',
       id: objCollapseOneSceneID,
       'aria-labelledby': objHeadingID,
       'data-parent': `#${accordionID}`
     });
     const currentLocaleValues = Blockly.CatblocksMsgs.getCurrentLocaleValues();
-    this.generateTabs(objectContentContainer, objectID, object, currentLocaleValues);
-    const contentContainer = injectNewDom(objectContentContainer, 'div', {
+    this.generateTabs($objectContentContainer, objectID, object, currentLocaleValues);
+    const $contentContainer = generateNewDom($objectContentContainer, 'div', {
       class: 'tab-content card-body'
     });
 
-    this.generateScripts(contentContainer, objectID, object, currentLocaleValues, options);
-    this.generateLooks(contentContainer, objectID, object, currentLocaleValues, options);
-    this.generateSounds(contentContainer, objectID, object, currentLocaleValues, options);
+    this.generateScripts($contentContainer, objectID, object, currentLocaleValues, options);
+    this.generateLooks($contentContainer, objectID, object, currentLocaleValues, options);
+    this.generateSounds($contentContainer, objectID, object, currentLocaleValues, options);
   }
 
   /**
@@ -303,8 +312,8 @@ export class Share {
    * @param {Object} currentLocaleValues
    * @param {Object} [options=defaultOptions.object]
    */
-  generateSounds(container, objectID, object, currentLocaleValues, options = defaultOptions.object) {
-    const soundsContainer = injectNewDom(container, 'div', {
+  generateSounds($container, objectID, object, currentLocaleValues, options = defaultOptions.object) {
+    const $soundsContainer = generateNewDom($container, 'div', {
       class: 'tab-pane fade p-3',
       id: `${objectID}-sounds`,
       role: 'tabpanel',
@@ -313,33 +322,31 @@ export class Share {
 
     const noSoundsText = 'No ' + currentLocaleValues['SOUNDS'] + ' found';
     if (!object || !object.soundList || object.soundList.length <= 0) {
-      soundsContainer.appendChild(
-        injectNewDom(
-          soundsContainer,
-          'p',
-          {
-            class: 'catblocks-empty-text'
-          },
-          noSoundsText
-        )
+      generateNewDom(
+        $soundsContainer,
+        'p',
+        {
+          class: 'catblocks-empty-text'
+        },
+        noSoundsText
       );
       if (this.config.rtl) {
-        soundsContainer.style.textAlign = 'right';
+        $soundsContainer.css('text-align', 'right');
       }
       return;
     }
 
-    const group = injectNewDom(soundsContainer, 'div', {
+    const $group = generateNewDom($soundsContainer, 'div', {
       class: 'list-group-flush'
     });
 
     let failed = 0;
     for (const sound of object.soundList) {
-      const row = injectNewDom(group, 'div', {
+      const $row = generateNewDom($group, 'div', {
         class: 'list-group-item row'
       });
 
-      const col = injectNewDom(row, 'div', {
+      const $col = generateNewDom($row, 'div', {
         class: 'col-12'
       });
 
@@ -364,8 +371,8 @@ export class Share {
         displaySoundName = sound.fileName;
       }
 
-      const soundName = injectNewDom(
-        col,
+      const $soundName = generateNewDom(
+        $col,
         'span',
         {
           class: 'catblocks-object-sound-name d-block'
@@ -373,29 +380,27 @@ export class Share {
         displaySoundName
       );
       if (this.config.rtl) {
-        soundName.style.textAlign = 'right';
+        $soundName.css('text-align', 'right');
       }
 
-      const audioContainer = injectNewDom(col, 'audio', {
+      const $audioContainer = generateNewDom($col, 'audio', {
         class: 'catblocks-object-sound-item',
         controls: 'controls'
       });
-      injectNewDom(audioContainer, 'source', {
+      generateNewDom($audioContainer, 'source', {
         src: src
       });
     }
 
     if (failed > 0) {
       const failedSoundsText = 'ERROR parsing ' + failed + ' ' + currentLocaleValues['SOUNDS'];
-      soundsContainer.appendChild(
-        injectNewDom(
-          soundsContainer,
-          'p',
-          {
-            class: 'catblocks-empty-text'
-          },
-          failedSoundsText
-        )
+      generateNewDom(
+        $soundsContainer,
+        'p',
+        {
+          class: 'catblocks-empty-text'
+        },
+        failedSoundsText
       );
     }
   }
@@ -408,8 +413,8 @@ export class Share {
    * @param {Object} currentLocaleValues
    * @param {Object} [options=defaultOptions.object]
    */
-  generateLooks(container, objectID, object, currentLocaleValues, options = defaultOptions.object) {
-    const looksContainer = injectNewDom(container, 'div', {
+  generateLooks($container, objectID, object, currentLocaleValues, options = defaultOptions.object) {
+    const $looksContainer = generateNewDom($container, 'div', {
       class: 'tab-pane fade p-3',
       id: `${objectID}-looks`,
       role: 'tabpanel',
@@ -418,35 +423,33 @@ export class Share {
 
     const noLooksText = 'No ' + currentLocaleValues['LOOKS'] + ' found';
     if (!object || !object.lookList || object.lookList.length <= 0) {
-      looksContainer.appendChild(
-        injectNewDom(
-          looksContainer,
-          'p',
-          {
-            class: 'catblocks-empty-text'
-          },
-          noLooksText
-        )
+      generateNewDom(
+        $looksContainer,
+        'p',
+        {
+          class: 'catblocks-empty-text'
+        },
+        noLooksText
       );
       if (this.config.rtl) {
-        looksContainer.style.textAlign = 'right';
+        $looksContainer.css('text-align', 'right');
       }
       return;
     }
 
-    const group = injectNewDom(looksContainer, 'div', {
+    const $group = generateNewDom($looksContainer, 'div', {
       class: 'list-group-flush'
     });
 
     let failed = 0;
     for (const look of object.lookList) {
-      const row = injectNewDom(group, 'div', {
+      const $row = generateNewDom($group, 'div', {
         class: 'list-group-item align-items-center'
       });
-      const col = injectNewDom(row, 'div', {
+      const $col = generateNewDom($row, 'div', {
         class: 'col-3'
       });
-      const button = injectNewDom(row, 'span', {
+      const $button = generateNewDom($row, 'span', {
         class: 'align-items-center'
       });
 
@@ -473,8 +476,8 @@ export class Share {
       }
 
       const imgID = `${displayLookName}-imgID`;
-      injectNewDom(
-        col,
+      generateNewDom(
+        $col,
         'img',
         {
           src: src,
@@ -486,13 +489,18 @@ export class Share {
         displayLookName
       );
 
-      document.getElementById(imgID).onclick = function () {
-        document.getElementById('modalHeader').innerHTML = displayLookName;
-        document.getElementById('modalImg').src = this.src;
-      };
+      // document.getElementById(imgID).onclick = function () {
+      //   document.getElementById('modalHeader').innerHTML = displayLookName;
+      //   document.getElementById('modalImg').src = this.src;
+      // };
 
-      const lookName = injectNewDom(
-        row,
+      $('body').on('click', `#${imgID}`, function () {
+        $(`#modalHeader`).html(displayLookName);
+        $(`#modalImg`).html(this.src);
+      });
+
+      const $lookName = generateNewDom(
+        $row,
         'div',
         {
           class: 'col-9'
@@ -501,36 +509,40 @@ export class Share {
       );
 
       const magnifyingGlassID = 'button ' + displayLookName;
-      const magnifyingGlass = injectNewDom(button, 'button', {
+      const $magnifyingGlass = generateNewDom($button, 'button', {
         class: 'search',
         id: magnifyingGlassID,
         'data-toggle': 'modal',
         'data-target': '#modalForImg',
         name: 'not clicked'
       });
-      magnifyingGlass.innerHTML = '<i class="material-icons">search</i>';
-      document.getElementById(magnifyingGlassID).onclick = function () {
-        document.getElementById('modalHeader').innerHTML = displayLookName;
-        document.getElementById('modalImg').src = src;
-        magnifyingGlass.name = 'now got clicked!';
-      };
+      $magnifyingGlass.html('<i class="material-icons">search</i>');
+      // document.getElementById(magnifyingGlassID).onclick = function () {
+      //   document.getElementById('modalHeader').innerHTML = displayLookName;
+      //   document.getElementById('modalImg').src = src;
+      //   magnifyingGlass.name = 'now got clicked!';
+      // };
+
+      $('body').on('click', `#${magnifyingGlassID}`, function () {
+        $(`#modalHeader`).html(displayLookName);
+        $(`#modalImg`).html(src);
+        $magnifyingGlass.attr('name', 'now got clicked!');
+      });
 
       if (this.config.rtl) {
-        lookName.style.textAlign = 'right';
+        $lookName.css('text-align', 'right');
       }
     }
 
     if (failed > 0) {
       const failedLooksText = 'ERROR parsing ' + failed + ' ' + currentLocaleValues['LOOKS'];
-      looksContainer.appendChild(
-        injectNewDom(
-          looksContainer,
-          'p',
-          {
-            class: 'catblocks-empty-text'
-          },
-          failedLooksText
-        )
+      generateNewDom(
+        $looksContainer,
+        'p',
+        {
+          class: 'catblocks-empty-text'
+        },
+        failedLooksText
       );
     }
   }
@@ -542,8 +554,8 @@ export class Share {
    * @param {Object} object
    * @param {Object} currentLocaleValues
    */
-  generateScripts(container, objectID, object, currentLocaleValues) {
-    const wrapperContainer = injectNewDom(container, 'div', {
+  generateScripts($container, objectID, object, currentLocaleValues) {
+    const $wrapperContainer = generateNewDom($container, 'div', {
       class: 'tab-pane show active fade p-3',
       id: `${objectID}-scripts`,
       role: 'tabpanel',
@@ -551,50 +563,47 @@ export class Share {
     });
     if (!object || !object.scriptList || object.scriptList.length <= 0) {
       const noScriptText = 'No ' + currentLocaleValues['SCRIPTS'] + ' found';
-      wrapperContainer.appendChild(
-        injectNewDom(
-          wrapperContainer,
-          'p',
-          {
-            class: 'catblocks-empty-text'
-          },
-          noScriptText
-        )
+      generateNewDom(
+        $wrapperContainer,
+        'p',
+        {
+          class: 'catblocks-empty-text'
+        },
+        noScriptText
       );
       if (this.config.rtl) {
-        wrapperContainer.style.textAlign = 'right';
+        // wrapperContainer.style.textAlign = 'right';
+        $wrapperContainer.css('text-align', 'right');
       }
       return;
     }
     let failed = 0;
     for (let i = 0; i < object.scriptList.length; i++) {
-      const scriptContainer = injectNewDom(wrapperContainer, 'div', {
+      const $scriptContainer = generateNewDom($wrapperContainer, 'div', {
         class: 'catblocks-script'
       });
       if (this.config.rtl) {
-        scriptContainer.style.textAlign = 'right';
+        $scriptContainer.css('text-align', 'right');
       }
-      scriptContainer.style.overflowX = 'auto';
+      $scriptContainer.css('overflow-x', 'auto');
 
       const blockSvg = this.domToSvg(object.scriptList[i]);
       if (blockSvg === undefined) {
         failed++;
       } else {
-        scriptContainer.appendChild(blockSvg);
+        $scriptContainer.append(blockSvg);
       }
     }
 
     if (failed > 0) {
       const failedScriptText = 'ERROR parsing ' + failed + ' ' + currentLocaleValues['SCRIPTS'];
-      wrapperContainer.appendChild(
-        injectNewDom(
-          wrapperContainer,
-          'p',
-          {
-            class: 'catblocks-empty-text'
-          },
-          failedScriptText
-        )
+      generateNewDom(
+        $wrapperContainer,
+        'p',
+        {
+          class: 'catblocks-empty-text'
+        },
+        failedScriptText
       );
     }
   }
@@ -606,7 +615,7 @@ export class Share {
    * @param {Object} object
    * @param {Object} currentLocaleValues
    */
-  generateTabs(container, objectID, object, currentLocaleValues) {
+  generateTabs($container, objectID, object, currentLocaleValues) {
     if (!object) {
       object = {
         scriptList: [],
@@ -625,20 +634,20 @@ export class Share {
       }
     }
 
-    const tabs = injectNewDom(container, 'div', {
+    const $tabs = generateNewDom($container, 'div', {
       class: 'catro-tabs'
     });
-    const ul = injectNewDom(tabs, 'ul', {
+    const $ul = generateNewDom($tabs, 'ul', {
       class: 'nav nav-tabs nav-fill',
       id: `${objectID}-tabs`,
       role: 'tablist'
     });
 
-    const liScript = injectNewDom(ul, 'li', {
+    const $liScript = generateNewDom($ul, 'li', {
       class: 'nav-item'
     });
-    injectNewDom(
-      liScript,
+    generateNewDom(
+      $liScript,
       'a',
       {
         class: 'nav-link active',
@@ -652,11 +661,11 @@ export class Share {
       `${currentLocaleValues['SCRIPTS']} (${object.scriptList.length})`
     );
 
-    const liLooks = injectNewDom(ul, 'li', {
+    const $liLooks = generateNewDom($ul, 'li', {
       class: 'nav-item'
     });
-    injectNewDom(
-      liLooks,
+    generateNewDom(
+      $liLooks,
       'a',
       {
         class: 'nav-link',
@@ -670,11 +679,11 @@ export class Share {
       `${currentLocaleValues['LOOKS']} (${object.lookList.length})`
     );
 
-    const liSounds = injectNewDom(ul, 'li', {
+    const $liSounds = generateNewDom($ul, 'li', {
       class: 'nav-item'
     });
-    injectNewDom(
-      liSounds,
+    generateNewDom(
+      $liSounds,
       'a',
       {
         class: 'nav-link',
@@ -696,16 +705,16 @@ export class Share {
    * @returns {Element} wrapper where the scene container should be injected
    * @memberof Share
    */
-  createProgramContainer(containerID, container) {
-    const row = injectNewDom(container, 'div', {
+  createProgramContainer(containerID, $container) {
+    const $row = generateNewDom($container, 'div', {
       class: 'row',
       id: containerID
     });
 
-    const col = injectNewDom(row, 'div', {
+    const $col = generateNewDom($row, 'div', {
       class: 'col-12'
     });
 
-    return col;
+    return $col;
   }
 }

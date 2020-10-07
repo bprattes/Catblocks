@@ -9,9 +9,8 @@ export default {
     message0: '%{BKY_DATA_SETVARIABLETOCAT}',
     args0: [
       {
-        type: 'field_input',
-        name: 'DROPDOWN',
-        text: 'unset'
+        type: 'input_dummy',
+        name: 'USER_VAR_PLACEHOLDER'
       },
       {
         type: 'field_image',
@@ -20,7 +19,7 @@ export default {
         width: 24,
         alt: '(i)',
         flip_rtl: true,
-        name: 'DROPDOWN_INFO'
+        name: 'USER_VAR_DROPDOWN_INFO'
       },
       {
         type: 'field_input',
@@ -36,15 +35,19 @@ export default {
         flip_rtl: true,
         name: 'VARIABLE_INFO'
       }
-    ]
+    ],
+    extensions: ['variable_dropdown_extension']
   },
   ChangeVariableBrick: {
     message0: '%{BKY_DATA_CHANGEVARIABLEBY}',
     args0: [
       {
-        type: 'field_input',
-        name: 'DROPDOWN',
-        text: 'unset'
+        type: 'field_dropdown',
+        name: 'USER_VAR_DROPDOWN',
+        options: [
+          ['a', 'a'],
+          ['a', 'a']
+        ]
       },
       {
         type: 'field_image',
@@ -53,7 +56,7 @@ export default {
         width: 24,
         alt: '(i)',
         flip_rtl: true,
-        name: 'DROPDOWN_INFO'
+        name: 'USER_VAR_DROPDOWN_INFO'
       },
       {
         type: 'field_input',
@@ -75,9 +78,9 @@ export default {
     message0: '%{BKY_DATA_SHOWVARIABLEAT}',
     args0: [
       {
-        type: 'field_input',
-        name: 'DROPDOWN',
-        text: 'unset'
+        type: 'field_dropdown',
+        options: [],
+        name: 'USER_VAR_DROPDOWN'
       },
       {
         type: 'field_image',
@@ -86,7 +89,7 @@ export default {
         width: 24,
         alt: '(i)',
         flip_rtl: true,
-        name: 'DROPDOWN_INFO'
+        name: 'USER_VAR_DROPDOWN_INFO'
       },
       {
         type: 'field_input',
@@ -122,9 +125,9 @@ export default {
     message0: '%{BKY_DATA_SHOWVARIABLEATSIZECOLORALIGNED}',
     args0: [
       {
-        type: 'field_input',
-        name: 'DROPDOWN',
-        text: 'unset'
+        type: 'field_dropdown',
+        options: [],
+        name: 'USER_VAR_DROPDOWN'
       },
       {
         type: 'field_image',
@@ -133,7 +136,7 @@ export default {
         width: 24,
         alt: '(i)',
         flip_rtl: true,
-        name: 'DROPDOWN_INFO'
+        name: 'USER_VAR_DROPDOWN_INFO'
       },
       {
         type: 'field_input',
@@ -371,9 +374,9 @@ export default {
     message0: '%{BKY_DATA_HIDEVARIABLE}',
     args0: [
       {
-        type: 'field_input',
-        name: 'DROPDOWN',
-        text: 'unset'
+        type: 'field_dropdown',
+        options: [],
+        name: 'DROPDOWN'
       },
       {
         type: 'field_image',
@@ -390,9 +393,9 @@ export default {
     message0: '%{BKY_DATA_READVARIABLE}',
     args0: [
       {
-        type: 'field_input',
-        name: 'DROPDOWN',
-        text: 'unset'
+        type: 'field_dropdown',
+        options: [],
+        name: 'USER_VAR_DROPDOWN'
       },
       {
         type: 'field_image',
@@ -401,7 +404,7 @@ export default {
         width: 24,
         alt: '(i)',
         flip_rtl: true,
-        name: 'DROPDOWN_INFO'
+        name: 'USER_VAR_DROPDOWN_INFO'
       }
     ]
   },
@@ -409,9 +412,9 @@ export default {
     message0: '%{BKY_DATA_WRITEVARIABLE}',
     args0: [
       {
-        type: 'field_input',
-        name: 'DROPDOWN',
-        text: 'unset'
+        type: 'field_dropdown',
+        options: [],
+        name: 'USER_VAR_DROPDOWN'
       },
       {
         type: 'field_image',
@@ -420,7 +423,7 @@ export default {
         width: 24,
         alt: '(i)',
         flip_rtl: true,
-        name: 'DROPDOWN_INFO'
+        name: 'USER_VAR_DROPDOWN_INFO'
       }
     ]
   },
@@ -546,9 +549,9 @@ export default {
         name: 'WEB_REQUEST_INFO'
       },
       {
-        type: 'field_input',
-        name: 'DROPDOWN',
-        text: 'unset'
+        type: 'field_dropdown',
+        options: [],
+        name: 'USER_VAR_DROPDOWN'
       },
       {
         type: 'field_image',
@@ -557,7 +560,7 @@ export default {
         width: 24,
         alt: '(i)',
         flip_rtl: true,
-        name: 'DROPDOWN_INFO'
+        name: 'USER_VAR_DROPDOWN_INFO'
       }
     ]
   },
@@ -565,9 +568,9 @@ export default {
     message0: '%{BKY_DATA_READ_VARIABLE_FROM_FILE}',
     args0: [
       {
-        type: 'field_input',
-        name: 'DROPDOWN',
-        text: 'unset'
+        type: 'field_dropdown',
+        options: [],
+        name: 'USER_VAR_DROPDOWN'
       },
       {
         type: 'field_image',
@@ -576,7 +579,7 @@ export default {
         width: 24,
         alt: '(i)',
         flip_rtl: true,
-        name: 'DROPDOWN_INFO'
+        name: 'USER_VAR_DROPDOWN_INFO'
       },
       {
         type: 'field_input',
@@ -612,9 +615,9 @@ export default {
     message0: '%{BKY_DATA_WRITE_VARIABLE_TO_FILE}',
     args0: [
       {
-        type: 'field_input',
-        name: 'DROPDOWN',
-        text: 'unset'
+        type: 'field_dropdown',
+        options: [],
+        name: 'USER_VAR_DROPDOWN'
       },
       {
         type: 'field_image',
@@ -623,7 +626,7 @@ export default {
         width: 24,
         alt: '(i)',
         flip_rtl: true,
-        name: 'DROPDOWN_INFO'
+        name: 'USER_VAR_DROPDOWN_INFO'
       },
       {
         type: 'field_input',

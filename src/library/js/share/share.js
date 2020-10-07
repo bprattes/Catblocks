@@ -18,6 +18,7 @@ import {
 
 const all_blocks = new Map();
 const rendered_scenes = new Map();
+let dropdown_extension_initialized = false;
 
 export class Share {
   constructor() {
@@ -118,7 +119,7 @@ export class Share {
       mediapath = this.config.media;
     }
     this.workspace = this.blockly.inject(hiddenContainer, {
-      readOnly: true,
+      readOnly: false,
       media: mediapath,
       zoom: {
         controls: false,
@@ -139,11 +140,11 @@ export class Share {
    * @param {Object} blockJSON blocks to render into svg
    * @returns {Object<Element, Object>} svg with block stats
    */
-  domToSvg(blockJSON) {
+  domToSvg(blockJSON, userVariables) {
     this.workspace.clear();
     let svg = undefined;
     try {
-      const sceneWidth = jsonDomToWorkspace(blockJSON, this.workspace);
+      const sceneWidth = jsonDomToWorkspace(blockJSON, this.workspace, userVariables);
       zebraChangeColor(this.workspace.topBlocks_);
       const oriSvg = this.workspace.getParentSvg();
       const oriBox = oriSvg.lastElementChild.getBBox();
@@ -294,12 +295,28 @@ export class Share {
       const $spinnerModal = $('#spinnerModal');
 
       if (!renderEverything) {
-        this.renderAllObjectsFromOneScene(options, scene, programID, sceneID, sceneObjectContainer, renderEverything);
+        this.renderAllObjectsFromOneScene(
+          options,
+          scene,
+          programID,
+          sceneID,
+          sceneObjectContainer,
+          renderEverything,
+          programJSON.programVariables
+        );
         continue;
       }
 
       if (programJSON.scenes.length === 1) {
-        this.renderAllObjectsFromOneScene(options, scene, programID, sceneID, sceneObjectContainer, renderEverything);
+        this.renderAllObjectsFromOneScene(
+          options,
+          scene,
+          programID,
+          sceneID,
+          sceneObjectContainer,
+          renderEverything,
+          programJSON.programVariables
+        );
       } else {
         $('body').on('click', `#${sceneID}`, () => {
           if (rendered_scenes[sceneID] !== true) {
@@ -310,7 +327,8 @@ export class Share {
                 programID,
                 sceneID,
                 sceneObjectContainer,
-                renderEverything
+                renderEverything,
+                programJSON.programVariables
               );
               $spinnerModal.modal('hide');
             });
@@ -323,8 +341,24 @@ export class Share {
     container.appendChild(programContainers[0]);
   }
 
-  renderAllObjectsFromOneScene(options, scene, programID, sceneID, sceneObjectContainer, renderEverything) {
-    this.handleBackgroundName(programID, scene, sceneID, sceneObjectContainer, options, renderEverything);
+  renderAllObjectsFromOneScene(
+    options,
+    scene,
+    programID,
+    sceneID,
+    sceneObjectContainer,
+    renderEverything,
+    programVariables
+  ) {
+    this.handleBackgroundName(
+      programID,
+      scene,
+      sceneID,
+      sceneObjectContainer,
+      options,
+      renderEverything,
+      programVariables
+    );
 
     if (rendered_scenes[sceneID] === true) {
       return;
@@ -344,6 +378,7 @@ export class Share {
         `${sceneID}-accordionObjects`,
         performanceContainer,
         object,
+        programVariables,
         parseOptions(options.object, parseOptions(options.object, defaultOptions.object))
       );
     }
@@ -361,7 +396,7 @@ export class Share {
     $('body').append(loadingAnimation);
   }
 
-  handleBackgroundName(programID, scene, sceneID, sceneObjectContainer, options, renderEverything) {
+  handleBackgroundName(programID, scene, sceneID, sceneObjectContainer, options, renderEverything, programVariables) {
     options.object.sceneName = scene.name;
     const backgroundObjID = generateID(`${programID}-${scene.name}-${scene.objectList[0].name}`);
 
@@ -374,6 +409,7 @@ export class Share {
       `${sceneID}-accordionObjects`,
       sceneObjectContainer,
       scene.objectList[0],
+      programVariables,
       parseOptions(options.object, parseOptions(options.object, defaultOptions.object))
     );
   }
@@ -386,7 +422,14 @@ export class Share {
    * @param {Object} object JSON of the program
    * @param {Object} [options=defaultOptions.object]
    */
-  renderObjectJSON(objectID, accordionID, sceneObjectContainer, object, options = defaultOptions.object) {
+  renderObjectJSON(
+    objectID,
+    accordionID,
+    sceneObjectContainer,
+    object,
+    programVariables,
+    options = defaultOptions.object
+  ) {
     const objectCard = generateNewDOM(sceneObjectContainer, 'div', {
       class: 'catblocks-object card',
       id: objectID
@@ -403,6 +446,29 @@ export class Share {
           }
         };
       }
+    }
+
+    const user_variables = [];
+    if (programVariables) {
+      programVariables.forEach(usr_var => {
+        user_variables.push([usr_var.name, usr_var.deviceValueKey]);
+      });
+      // userVariables.push(programVariables);
+    }
+    if (object.userVariables) {
+      object.userVariables.forEach(usr_var => {
+        user_variables.push([usr_var.name, usr_var.deviceValueKey]);
+      });
+      // userVariables.push(object.userVariables);
+    }
+
+    if (!dropdown_extension_initialized) {
+      Blockly.Extensions.register('variable_dropdown_extension', function () {
+        this.getInput('USER_VAR_PLACEHOLDER').appendField(
+          new Blockly.FieldDropdown(user_variables, 'USER_VAR_DROPDOWN')
+        );
+      });
+      dropdown_extension_initialized = true;
     }
 
     const objHeadingID = `${objectID}-header`;
@@ -443,7 +509,7 @@ export class Share {
     });
 
     if (this.config.renderScripts) {
-      this.generateScripts(contentContainer, objectID, object, currentLocaleValues);
+      this.generateScripts(contentContainer, objectID, object, currentLocaleValues, user_variables);
     }
     if (this.config.renderLooks) {
       this.generateLooks(contentContainer, objectID, object, currentLocaleValues, options);
@@ -759,7 +825,7 @@ export class Share {
    * @param {Object} object
    * @param {Object} currentLocaleValues
    */
-  generateScripts(container, objectID, object, currentLocaleValues) {
+  generateScripts(container, objectID, object, currentLocaleValues, userVariables) {
     const wrapperContainer = generateNewDOM(container, 'div', {
       class: 'tab-pane show active fade p-3',
       id: `${objectID}-scripts`,
@@ -793,7 +859,7 @@ export class Share {
       }
       scriptContainer.style.overflowX = 'auto';
 
-      const blockSvg = this.domToSvg(object.scriptList[i]);
+      const blockSvg = this.domToSvg(object.scriptList[i], userVariables);
       if (blockSvg === undefined) {
         failed++;
       } else {

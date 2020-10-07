@@ -140,9 +140,9 @@ export default {
         name: 'ASK_SPEECH_QUESTION_INFO'
       },
       {
-        type: 'field_input',
-        name: 'DROPDOWN',
-        text: 'unset'
+        type: 'field_dropdown',
+        name: 'USER_VAR_DROPDOWN',
+        options: []
       },
       {
         type: 'field_image',
@@ -151,7 +151,7 @@ export default {
         width: 24,
         alt: '(i)',
         flip_rtl: true,
-        name: 'DROPDOWN_INFO'
+        name: 'USER_VAR_DROPDOWN_INFO'
       }
     ]
   },

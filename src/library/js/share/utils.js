@@ -250,10 +250,10 @@ export const escapeURI = string => {
  * @param {object} workspace where bricks are rendered
  * @return {number} sceneWidth width of current scene
  */
-export const jsonDomToWorkspace = (jsonObject, workspace) => {
+export const jsonDomToWorkspace = (jsonObject, workspace, userVariables) => {
   const brickList = [];
   brickList.push(jsonObject);
-  renderAndConnectBlocksInList(null, brickList, brickListTypes.noBrickList, workspace);
+  renderAndConnectBlocksInList(null, brickList, brickListTypes.noBrickList, workspace, userVariables);
   workspace.render(false);
   let sceneWidth = 0;
   const allBricks = workspace.getAllBlocks();
@@ -277,9 +277,9 @@ export const jsonDomToWorkspace = (jsonObject, workspace) => {
  * @param {object} brickListType of list
  * @param {object} workspace where bricks are rendered
  */
-export const renderAndConnectBlocksInList = (parentBrick, brickList, brickListType, workspace) => {
+export const renderAndConnectBlocksInList = (parentBrick, brickList, brickListType, workspace, userVariables) => {
   for (let i = 0; i < brickList.length; i++) {
-    const childBrick = renderBrick(parentBrick, brickList[i], brickListType, workspace);
+    const childBrick = renderBrick(parentBrick, brickList[i], brickListType, workspace, userVariables);
     if (brickList[i].brickList !== undefined && brickList[i].brickList.length > 0) {
       if (brickList[i].userBrickId !== undefined) {
         // if there are bricks in the brickList and the userBrickId is set, it is a UserDefinedScript
@@ -287,7 +287,8 @@ export const renderAndConnectBlocksInList = (parentBrick, brickList, brickListTy
           childBrick,
           brickList[i].brickList.reverse(),
           brickListTypes.userBrickList,
-          workspace
+          workspace,
+          userVariables
         );
 
         // create and render the definition brick
@@ -304,9 +305,15 @@ export const renderAndConnectBlocksInList = (parentBrick, brickList, brickListTy
           formValues: definitionFormValues,
           colorVariation: 0
         };
-        renderBrick(childBrick, definitionBrick, brickListTypes.userBrickDefinition, workspace);
+        renderBrick(childBrick, definitionBrick, brickListTypes.userBrickDefinition, workspace, userVariables);
       } else {
-        renderAndConnectBlocksInList(childBrick, brickList[i].brickList.reverse(), brickListTypes.brickList, workspace);
+        renderAndConnectBlocksInList(
+          childBrick,
+          brickList[i].brickList.reverse(),
+          brickListTypes.brickList,
+          workspace,
+          userVariables
+        );
       }
     }
     if (brickList[i].elseBrickList !== undefined && brickList[i].elseBrickList.length > 0) {
@@ -314,7 +321,8 @@ export const renderAndConnectBlocksInList = (parentBrick, brickList, brickListTy
         childBrick,
         brickList[i].elseBrickList.reverse(),
         brickListTypes.elseBrickList,
-        workspace
+        workspace,
+        userVariables
       );
     }
     if (brickList[i].loopOrIfBrickList !== undefined && brickList[i].loopOrIfBrickList.length > 0) {
@@ -322,7 +330,8 @@ export const renderAndConnectBlocksInList = (parentBrick, brickList, brickListTy
         childBrick,
         brickList[i].loopOrIfBrickList.reverse(),
         brickListTypes.loopOrIfBrickList,
-        workspace
+        workspace,
+        userVariables
       );
     }
   }
@@ -336,7 +345,7 @@ export const renderAndConnectBlocksInList = (parentBrick, brickList, brickListTy
  * @param {object} workspace where bricks are rendered
  * @return {object} childBrick
  */
-export const renderBrick = (parentBrick, jsonBrick, brickListType, workspace) => {
+export const renderBrick = (parentBrick, jsonBrick, brickListType, workspace, userVariables) => {
   const childBrick = workspace.newBlock(jsonBrick.name);
   if (jsonBrick.formValues !== undefined && jsonBrick.formValues.size !== undefined && jsonBrick.formValues.size > 0) {
     jsonBrick.formValues.forEach(function (value, key) {

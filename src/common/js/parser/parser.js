@@ -8,12 +8,20 @@ class Scene {
   }
 }
 
+class Variable {
+  constructor(name, deviceValueKey) {
+    this.name = name;
+    this.deviceValueKey = deviceValueKey;
+  }
+}
+
 class Object {
   constructor(name) {
     this.name = name;
     this.lookList = [];
     this.soundList = [];
     this.scriptList = [];
+    this.userVariables = [];
     this.userBricks = null;
   }
 }
@@ -83,6 +91,7 @@ class UserBrickDefinition {
 }
 
 const sceneList = [];
+const programVariableList = [];
 let xmlDoc = undefined;
 const supportedAppVersion = 0.9994;
 
@@ -128,6 +137,7 @@ function isSupported(program) {
 function initParser(xml) {
   xmlDoc = xml;
   sceneList.length = 0;
+  programVariableList.length = 0;
   MESSAGES = Blockly.CatblocksMsgs.getCurrentLocaleValues();
 }
 
@@ -141,8 +151,19 @@ function getCatroidProgramObject(xml) {
   for (let i = 0; i < scenes.length; i++) {
     sceneList.push(parseScenes(scenes[i]));
   }
-  return { scenes: sceneList };
+
+  const programVariables = xml.getElementsByTagName('programVariableList')[0].getElementsByTagName('userVariable');
+  if (programVariables) {
+    for (let i = 0; i < programVariables.length; ++i) {
+      const variable = parseVariable(programVariables[i]);
+      if (variable) {
+        programVariableList.push(variable);
+      }
+    }
+  }
+  return { scenes: sceneList, programVariables: programVariableList };
 }
+
 /**
  * Flat/dereference xml nodes
  * @param {*} node node
@@ -163,6 +184,16 @@ function flatReference(node, xml = xmlDoc) {
  */
 function escapeName(name) {
   return (name || '').replace(/[&]/, '');
+}
+
+function parseVariable(variable) {
+  const varTag = flatReference(variable);
+  const realVariable = varTag.getElementsByTagName('userVariable')[0];
+  if (realVariable) {
+    const name = realVariable.getElementsByTagName('name')[0].innerHTML;
+    const deviceValueKey = realVariable.getElementsByTagName('deviceValueKey')[0].innerHTML;
+    return new Variable(name, deviceValueKey);
+  }
 }
 
 function parseScenes(scene) {
@@ -187,8 +218,9 @@ function parseObjects(object) {
     const lookList = object.getElementsByTagName('lookList')[0].children;
     const soundList = object.getElementsByTagName('soundList')[0].children;
     const scriptList = object.getElementsByTagName('scriptList')[0].children;
-
+    const userVariables = object.getElementsByTagName('userVariables')[0].children;
     const userDefinedBrickList = object.getElementsByTagName('userDefinedBrickList');
+
     if (userDefinedBrickList && userDefinedBrickList[0]) {
       const userBrickDefinitions = parseUserBrickDefinitions(userDefinedBrickList[0].children);
       currentObject.userBricks = userBrickDefinitions;
@@ -237,6 +269,15 @@ function parseObjects(object) {
     for (let i = 0; i < scriptList.length; i++) {
       currentObject.scriptList.push(parseScripts(scriptList[i]));
     }
+
+    for (let i = 0; i < userVariables.length; ++i) {
+      const variableTag = flatReference(userVariables[i]);
+      const variable = parseVariable(variableTag);
+      if (variable) {
+        currentObject.userVariables.push(variable);
+      }
+    }
+
     return currentObject;
   }
 }

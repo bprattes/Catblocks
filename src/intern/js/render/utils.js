@@ -211,7 +211,7 @@ export async function initShareAndRenderPrograms(programPath, language, isRtl) {
     renderScripts: true,
     renderLooks: true,
     renderSounds: true,
-    readOnly: true
+    readOnly: false
   });
 
   try {

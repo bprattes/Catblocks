@@ -353,8 +353,15 @@ export const renderBrick = (parentBrick, jsonBrick, brickListType, workspace) =>
   if (jsonBrick.formValues !== undefined && jsonBrick.formValues.size !== undefined && jsonBrick.formValues.size > 0) {
     jsonBrick.formValues.forEach(function (value, key) {
       for (let j = 0; j < childBrick.inputList[0].fieldRow.length; j++) {
-        if (childBrick.inputList[0].fieldRow[j].name === key) {
-          childBrick.inputList[0].fieldRow[j].setValue(value);
+        const field = childBrick.inputList[0].fieldRow[j];
+        if (field.name === key) {
+          field.setValue(value);
+
+          if (jsonBrick.id) {
+            field.showEditor_ = function() {
+              modifyBrickField(jsonBrick.id, key, field);
+            };
+          }
         }
       }
     });
@@ -391,6 +398,13 @@ export const renderBrick = (parentBrick, jsonBrick, brickListType, workspace) =>
   }
   return childBrick;
 };
+
+function modifyBrickField(brickId, fieldId, field) {
+  const newValue = Android.modifyBrickField(brickId, fieldId);
+  if (newValue !== null) {
+    field.setValue(newValue);
+  }
+}
 
 /**
  * Change scene to RTL layout by changing x coordinates of first brick in scene

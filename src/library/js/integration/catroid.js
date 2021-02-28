@@ -144,6 +144,7 @@ export class Catroid {
     const topBricks = this.workspace.getTopBlocks();
     for (let i = 0; i < topBricks.length; ++i) {
       const brick = topBricks[i];
+      // console.log(brick);
       const script = object.scriptList[i];
 
       brick.setMovable(true);

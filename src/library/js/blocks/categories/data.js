@@ -245,7 +245,7 @@ export default {
     args0: [
       {
         type: 'field_input',
-        name: 'LIST_ADD_ITEM',
+        name: 'brick_add_item_to_userlist_edit_text',
         text: 'unset'
       },
       {
@@ -255,11 +255,11 @@ export default {
         width: 24,
         alt: '(i)',
         flip_rtl: true,
-        name: 'LIST_ADD_ITEM_INFO'
+        name: 'brick_add_item_to_userlist_edit_text_INFO'
       },
       {
         type: 'field_input',
-        name: 'DROPDOWN',
+        name: 'add_item_to_userlist_spinner',
         text: 'unset'
       },
       {
@@ -269,7 +269,7 @@ export default {
         width: 24,
         alt: '(i)',
         flip_rtl: true,
-        name: 'DROPDOWN_INFO'
+        name: 'add_item_to_userlist_spinner_INFO'
       }
     ]
   },
